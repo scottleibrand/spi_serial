@@ -1,0 +1,7 @@
+README.txt
+spi_serial/__init__.py
+spi_serial/spi_serial.py
+spi_serial.egg-info/PKG-INFO
+spi_serial.egg-info/SOURCES.txt
+spi_serial.egg-info/dependency_links.txt
+spi_serial.egg-info/top_level.txt
