@@ -2,29 +2,32 @@ import mraa as m
 import time
 
 import gpio
+import spidev
 
-GPIO_RESET_PIN=14 
+GPIO_RESET_PIN=14
+SPI_BUS=5
+SPI_DEVICE=1
 
 
 class SpiSerial():
     def __init__(self):
-        self.cs0 = m.Gpio(23)
-        self.cs0.dir(m.DIR_OUT)
-        self.cs0.write(1)
-
-        self.dev = m.spiFromDesc("spi-raw-5-1")
-        self.dev.frequency(62500)
-        self.dev.mode(m.SPI_MODE0)
-        self.dev.bitPerWord(8)
-        self.timeout = 0
+        #self.cs0 = m.Gpio(23)
+        #self.cs0.dir(m.DIR_OUT)
+        #self.cs0.write(1)
+        self.dev = spidev.SpiDev()
+        self.dev.open(SPI_BUS, SPI_DEVICE)
+        #self.dev = m.spiFromDesc("spi-raw-5-1")
+        self.dev.max_speed_hz=62500
+        #self.dev.frequency(62500)
+        self.dev.mode=0b00
+        self.dev.bits_per_word=8
+        #self.timeout = 0
         self.rx_buf = []
 
     def spi_xfer(self, b):
         tx = bytearray(1)
         tx[0] = (int('{:08b}'.format(b)[::-1], 2))
-        self.cs0.write(0)
-        rxbuf = self.dev.write(tx)
-        self.cs0.write(1)
+        rxbuf = self.dev.writebyes(tx)
         return (int('{:08b}'.format(rxbuf[0])[::-1], 2))
 
     def close(self):
