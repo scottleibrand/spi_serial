@@ -8,11 +8,9 @@ GPIO_RESET_PIN=14
 
 class SpiSerial():
     def __init__(self):
-        #self.cs0 = m.Gpio(23)
-        #self.cs0.dir(m.DIR_OUT)
-        #self.cs0.write(1)
-        gpio.setup(GPIO_RESET_PIN, gpio.OUT)
-        gpio.set(GPIO_RESET_PIN, 1)
+        self.cs0 = m.Gpio(23)
+        self.cs0.dir(m.DIR_OUT)
+        self.cs0.write(1)
 
         self.dev = m.spiFromDesc("spi-raw-5-1")
         self.dev.frequency(62500)
