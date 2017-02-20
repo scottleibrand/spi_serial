@@ -28,6 +28,7 @@ class SpiSerial():
         tx = bytearray(1)
         tx[0] = (int('{:08b}'.format(b)[::-1], 2))
         rxbuf = self.dev.xfer(list(tx))
+        print "rx=%s" % rxbuf
         return (int('{:08b}'.format(rxbuf[0])[::-1], 2))
 
     def close(self):
