@@ -1,12 +1,18 @@
 import mraa as m
 import time
 
+import gpio
+
+GPIO_RESET_PIN=14 
+
 
 class SpiSerial():
     def __init__(self):
-        self.cs0 = m.Gpio(23)
-        self.cs0.dir(m.DIR_OUT)
-        self.cs0.write(1)
+        #self.cs0 = m.Gpio(23)
+        #self.cs0.dir(m.DIR_OUT)
+        #self.cs0.write(1)
+        gpio.setup(GPIO_RESET_PIN, gpio.OUT)
+        gpio.set(GPIO_RESET_PIN, 1)
 
         self.dev = m.spiFromDesc("spi-raw-5-1")
         self.dev.frequency(62500)
@@ -61,10 +67,13 @@ class SpiSerial():
         return len(self.rx_buf)
 
     def reset(self):
-        self.RST = m.Gpio(36)
-        self.RST.dir(m.DIR_OUT)
-        self.RST.write(0)   # reset the device
+        #self.RST = m.Gpio(36)
+        #self.RST.dir(m.DIR_OUT)
+        #self.RST.write(0)   # reset the device
+        gpio.setup(GPIO_RESET_PIN, gpio.OUT)
+        gpio.set(GPIO_RESET_PIN, 0)
         time.sleep(0.01)
-        self.RST.write(1)   # let the device out of reset
+        gpio.set(GPIO_RESET_PIN, 1)
+        #self.RST.write(1)   # let the device out of reset
         time.sleep(2.01)    # wait for the CC1110 to come up
         # TODO: change the CC1110 code to not have a 2s delay
