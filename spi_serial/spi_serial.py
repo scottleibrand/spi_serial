@@ -1,26 +1,41 @@
 import mraa as m
 import time
 
+import gpio
+import spidev
+
+import logging
+logging.basicConfig(level=logging.ERROR)
+#logging.basicConfig(level=logging.DEBUG)
+log = logging.getLogger(__name__)
+
+GPIO_RESET_PIN=14
+SPI_BUS=5
+SPI_DEVICE=1
+DELAY_USEC=1
+SPEED_HZ=62500
+BITS_PER_WORD=8
 
 class SpiSerial():
     def __init__(self):
-        self.cs0 = m.Gpio(23)
-        self.cs0.dir(m.DIR_OUT)
-        self.cs0.write(1)
-
-        self.dev = m.spiFromDesc("spi-raw-5-1")
-        self.dev.frequency(62500)
-        self.dev.mode(m.SPI_MODE0)
-        self.dev.bitPerWord(8)
-        self.timeout = 0
+        #self.cs0 = m.Gpio(23)
+        #self.cs0.dir(m.DIR_OUT)
+        #self.cs0.write(1)
+        self.dev = spidev.SpiDev()
+        self.dev.open(SPI_BUS, SPI_DEVICE)
+        #self.dev = m.spiFromDesc("spi-raw-5-1")
+        self.dev.max_speed_hz=SPEED_HZ
+        #self.dev.frequency(62500)
+        self.dev.mode=0b00
+        self.dev.bits_per_word=BITS_PER_WORD
+        #self.timeout = 0
         self.rx_buf = []
 
     def spi_xfer(self, b):
         tx = bytearray(1)
         tx[0] = (int('{:08b}'.format(b)[::-1], 2))
-        self.cs0.write(0)
-        rxbuf = self.dev.write(tx)
-        self.cs0.write(1)
+        rxbuf = self.dev.xfer(list(tx), SPEED_HZ, DELAY_USEC, BITS_PER_WORD)
+        #print "rx=%s" % rxbuf
         return (int('{:08b}'.format(rxbuf[0])[::-1], 2))
 
     def close(self):
@@ -61,10 +76,13 @@ class SpiSerial():
         return len(self.rx_buf)
 
     def reset(self):
-        self.RST = m.Gpio(36)
-        self.RST.dir(m.DIR_OUT)
-        self.RST.write(0)   # reset the device
+        #self.RST = m.Gpio(36)
+        #self.RST.dir(m.DIR_OUT)
+        #self.RST.write(0)   # reset the device
+        gpio.setup(GPIO_RESET_PIN, gpio.OUT)
+        gpio.set(GPIO_RESET_PIN, 0)
         time.sleep(0.01)
-        self.RST.write(1)   # let the device out of reset
+        gpio.set(GPIO_RESET_PIN, 1)
+        #self.RST.write(1)   # let the device out of reset
         time.sleep(2.01)    # wait for the CC1110 to come up
         # TODO: change the CC1110 code to not have a 2s delay
