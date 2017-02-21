@@ -12,7 +12,9 @@ log = logging.getLogger(__name__)
 GPIO_RESET_PIN=14
 SPI_BUS=5
 SPI_DEVICE=1
-
+DELAY_USEC=1
+SPEED_HZ=62500
+BITS_PER_WORD=8
 
 class SpiSerial():
     def __init__(self):
@@ -22,18 +24,17 @@ class SpiSerial():
         self.dev = spidev.SpiDev()
         self.dev.open(SPI_BUS, SPI_DEVICE)
         #self.dev = m.spiFromDesc("spi-raw-5-1")
-        self.dev.max_speed_hz=62500
+        self.dev.max_speed_hz=SPEED_HZ
         #self.dev.frequency(62500)
         self.dev.mode=0b00
-        self.dev.bits_per_word=8
-        self.dev.delay_usec=1
+        self.dev.bits_per_word=BITS_PER_WORD
         #self.timeout = 0
         self.rx_buf = []
 
     def spi_xfer(self, b):
         tx = bytearray(1)
         tx[0] = (int('{:08b}'.format(b)[::-1], 2))
-        rxbuf = self.dev.xfer(list(tx))
+        rxbuf = self.dev.xfer(list(tx), SPEED_HZ, DELAY_USEC, BITS_PER_WORD)
         #print "rx=%s" % rxbuf
         return (int('{:08b}'.format(rxbuf[0])[::-1], 2))
 
