@@ -4,6 +4,11 @@ import time
 import gpio
 import spidev
 
+import logging
+logging.basicConfig(level=logging.ERROR)
+#logging.basicConfig(level=logging.DEBUG)
+log = logging.getLogger(__name__)
+
 GPIO_RESET_PIN=14
 SPI_BUS=5
 SPI_DEVICE=1
@@ -21,6 +26,7 @@ class SpiSerial():
         #self.dev.frequency(62500)
         self.dev.mode=0b00
         self.dev.bits_per_word=8
+        self.dev.delay_usec=1
         #self.timeout = 0
         self.rx_buf = []
 
@@ -28,7 +34,7 @@ class SpiSerial():
         tx = bytearray(1)
         tx[0] = (int('{:08b}'.format(b)[::-1], 2))
         rxbuf = self.dev.xfer(list(tx))
-        print "rx=%s" % rxbuf
+        #print "rx=%s" % rxbuf
         return (int('{:08b}'.format(rxbuf[0])[::-1], 2))
 
     def close(self):
